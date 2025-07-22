@@ -1,31 +1,31 @@
 # Forest Fire Detection
 
-## What It Is
-A web application that lets you upload images or videos and automatically detects the presence of forest fire by analyzing color properties in each frame or image.
+A dual-method system for detecting forest fires in still images and video streams. It combines a lightweight, rule-based HSV-thresholding pipeline with a more robust machine-learning classifier built on handcrafted wavelet features.
 
-## Tools Used
-- **Backend:**  
-  - [FastAPI](https://fastapi.tiangolo.com/)  
-  - [Uvicorn](https://www.uvicorn.org/)  
-- **Computer Vision:**  
-  - [OpenCV](https://opencv.org/)  
-  - [NumPy](https://numpy.org/)  
-- **Frontend:**  
-  - HTML, CSS, JavaScript
+---
 
-## Algorithms and Methods
-1. **Color Space Conversion**  
-   - Convert input from BGR (OpenCV’s default) to HSV for robust color segmentation.
+## 📋 Summary
 
-2. **HSV Thresholding**  
-   - Define a “fire-like” HSV range (Hue: 0–35, Saturation: 50–255, Value: 50–255).  
-   - Generate a binary mask of pixels within that range.
+This project offers two complementary approaches to spot fire:
+1. **HSV-Thresholding** (in `api.py`): Converts frames or images to HSV color space, masks for “fire-like” hues, and flags a scene whenever fire-pixel coverage exceeds a threshold.  
+2. **Machine-Learning Model** (in `model.py`): Extracts texture and intensity features via wavelet transforms, then classifies “fire” vs. “no fire” using a pre-trained Random Forest.
 
-3. **Pixel Ratio Analysis**  
-   - Count mask (fire) pixels vs. total pixels.  
-   - Fire is flagged when fire-pixel ratio exceeds a threshold (e.g., 1% of the frame).
+Together, they let you choose between ultra-fast color-based detection and a slightly heavier—but more accurate—ML pipeline.
 
-4. **Frame-by-Frame Video Processing**  
-   - Use OpenCV’s `VideoCapture` to read each video frame.  
-   - Apply the same HSV-thresholding pipeline to every frame.  
-   - Record and return the timestamps (in milliseconds) of all frames where fire is detected.
+---
+
+## 🔧 Tools & Technologies
+
+- **Backend**  
+  - [FastAPI](https://fastapi.tiangolo.com/) & [Uvicorn](https://www.uvicorn.org/)  
+  - Python 3.8+  
+- **Core Libraries**  
+  - [OpenCV](https://opencv.org/) (image/video I/O & color conversions)  
+  - [NumPy](https://numpy.org/) (array operations)  
+  - [PyWavelets](https://pywavelets.readthedocs.io/) (wavelet decomposition)  
+  - [Scikit-learn](https://scikit-learn.org/) (Random Forest classifier)  
+- **Frontend**  
+  - HTML, CSS, JavaScript (simple upload forms + AJAX)
+
+
+
