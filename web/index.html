@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fire Detection API</title>
+  </head>
+  <body>
+    <h1>Fire Detection</h1>
+
+    <!-- Form to upload an image -->
+    <form id="fire-detection-form">
+      <label for="image-input">Select an image:</label>
+      <input type="file" id="image-input" accept="image/*" />
+      <button type="submit">Upload and Predict</button>
+    </form>
+
+    <!-- Form to upload a video -->
+    <form id="video-detection-form">
+      <label for="video-input">Select a video:</label>
+      <input type="file" id="video-input" accept="video/*" />
+      <button type="submit">Upload and Predict</button>
+    </form>
+
+    <div id="result"></div>
+
+    <!-- Script to handle file upload and API call -->
+    <script>
+      document
+        .getElementById("fire-detection-form")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          // Get the file from the input
+          const fileInput = document.getElementById("image-input");
+          const file = fileInput.files[0];
+
+          // Make sure a file is selected
+          if (!file) {
+            alert("Please select an image file.");
+            return;
+          }
+
+          // Prepare form data for API call
+          const formData = new FormData();
+          formData.append("file", file);
+
+          try {
+            // Send the image to the FastAPI server
+            const response = await fetch("http://127.0.0.1:8000/predict/", {
+              method: "POST",
+              body: formData,
+            });
+
+            // Handle the response
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Display the prediction result and image
+            document.getElementById("result").innerHTML = `
+                    <p>Prediction: ${data.prediction}</p>
+                    <img src="data:image/jpeg;base64,${data.image_base64}" alt="Uploaded Image" width="300" />
+                `;
+          } catch (error) {
+            console.error("Error during API call:", error);
+            alert("Failed to make the API call. Check console for details.");
+          }
+        });
+
+      // handle video uploads
+      document
+        .getElementById("video-detection-form")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const fileInput = document.getElementById("video-input");
+          const file = fileInput.files[0];
+          if (!file) {
+            alert("Please select a video file.");
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          try {
+            const response = await fetch(
+              "http://127.0.0.1:8000/predict_video/",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
+            if (!response.ok) throw new Error(`status: ${response.status}`);
+
+            const data = await response.json();
+            document.getElementById("result").innerHTML = `
+        <p>Fire detected in ${
+          data.fire_detected_frames.length
+        } frames at timestamps (ms):</p>
+        <p>${data.fire_detected_frames.join(", ")}</p>
+      `;
+          } catch (err) {
+            console.error(err);
+            alert("Failed to detect fire in video.");
+          }
+        });
+    </script>
+  </body>
+</html>
